@@ -349,54 +349,43 @@ document.getElementById("generateAI").addEventListener("click", function(){
   statusEl.textContent = "Generating image...";
   statusEl.style.color = "#0a84ff";
   
-  // Create a temporary canvas to load the image via fetch
-  fetch("https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + "?width=1024&height=1024&nologo=true&seed=" + Date.now())
-    .then(function(response) {
-      if (!response.ok) throw new Error("Network response was not ok");
-      return response.blob();
-    })
-    .then(function(blob) {
-      var objectURL = URL.createObjectURL(blob);
-      var img = new Image();
-      
-      img.onload = function() {
-        if(target === "background"){
-          bgImage = img;
-          resize(img.width, img.height);
-          imageCtx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-          imageCtx.drawImage(img, 0, 0);
-          bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
-          drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-          history = [];
-          redoStack = [];
-          saveState();
-          drawGrid();
-          renderFloatingImages();
-          statusEl.textContent = "✓ Background image created!";
-          statusEl.style.color = "#34c759";
-        } else {
-          addFloatingImage(img);
-          statusEl.textContent = "✓ Floating image created!";
-          statusEl.style.color = "#34c759";
-        }
-        
-        document.getElementById("aiPrompt").value = "";
-        URL.revokeObjectURL(objectURL);
-      };
-      
-      img.onerror = function() {
-        statusEl.textContent = "Error loading generated image";
-        statusEl.style.color = "#ff3b30";
-        URL.revokeObjectURL(objectURL);
-      };
-      
-      img.src = objectURL;
-    })
-    .catch(function(error) {
-      console.error("Fetch error:", error);
-      statusEl.textContent = "Could not connect to AI service. Check internet connection.";
-      statusEl.style.color = "#ff3b30";
-    });
+  // Using Pollinations.ai API
+  var seed = Math.floor(Math.random() * 1000000);
+  var apiUrl = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + 
+                "?width=1024&height=1024&seed=" + seed + "&nologo=true";
+  
+  var img = new Image();
+  
+  img.onload = function() {
+    if(target === "background"){
+      bgImage = img;
+      resize(img.width, img.height);
+      imageCtx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+      imageCtx.drawImage(img, 0, 0);
+      bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+      drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+      history = [];
+      redoStack = [];
+      saveState();
+      drawGrid();
+      renderFloatingImages();
+      statusEl.textContent = "✓ Background image created!";
+      statusEl.style.color = "#34c759";
+    } else {
+      addFloatingImage(img);
+      statusEl.textContent = "✓ Floating image created!";
+      statusEl.style.color = "#34c759";
+    }
+    
+    document.getElementById("aiPrompt").value = "";
+  };
+  
+  img.onerror = function() {
+    statusEl.textContent = "Error generating image. Try again.";
+    statusEl.style.color = "#ff3b30";
+  };
+  
+  img.src = apiUrl;
 });
 
 // Allow Enter key to generate
