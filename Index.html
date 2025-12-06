@@ -349,12 +349,12 @@ document.getElementById("generateAI").addEventListener("click", function(){
   statusEl.textContent = "Generating image...";
   statusEl.style.color = "#0a84ff";
   
-  // Using Pollinations.ai with optimized parameters
+  // Using Pollinations.ai API
+  var seed = Math.floor(Math.random() * 1000000);
   var apiUrl = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + 
-                "?width=1024&height=1024&nologo=true";
+                "?width=1024&height=1024&seed=" + seed + "&nologo=true";
   
   var img = new Image();
-  img.crossOrigin = "anonymous";
   
   img.onload = function() {
     if(target === "background"){
